@@ -23,7 +23,12 @@ import type { Product } from "../../types/product";
 import type { Offer } from "../../types/offer";
 import type { CartItem } from "../../types/cart";
 
-const RestaurantHomePage = () => {
+interface HomePageProps {
+  onLogout: () => void;
+  onNavigateToOrder: () => void;
+}
+
+const RestaurantHomePage = ({ onLogout, onNavigateToOrder }: HomePageProps) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeSection, setActiveSection] = useState<
     "home" | "menu" | "orders" | "cart" | "profile"
@@ -61,6 +66,12 @@ const RestaurantHomePage = () => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
+  const handlePlaceOrder = (): void => {
+    // Save cart to localStorage before navigating
+    localStorage.setItem("cart", JSON.stringify(cart));
+    onNavigateToOrder();
+  };
+
   const subtotal: number = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -82,7 +93,7 @@ const RestaurantHomePage = () => {
               activeSection === "home" ? "active" : ""
             }`}
           >
-            <Home size={24} />
+            <Home size={50} />
           </button>
           <button
             onClick={() => setActiveSection("menu")}
@@ -90,7 +101,7 @@ const RestaurantHomePage = () => {
               activeSection === "menu" ? "active" : ""
             }`}
           >
-            <Grid size={24} />
+            <Grid size={50} />
           </button>
           <button
             onClick={() => setActiveSection("orders")}
@@ -98,7 +109,7 @@ const RestaurantHomePage = () => {
               activeSection === "orders" ? "active" : ""
             }`}
           >
-            <FileText size={24} />
+            <FileText size={50} />
           </button>
           <button
             onClick={() => setActiveSection("cart")}
@@ -106,7 +117,7 @@ const RestaurantHomePage = () => {
               activeSection === "cart" ? "active" : ""
             }`}
           >
-            <Package size={24} />
+            <Package size={50} />
           </button>
           <button
             onClick={() => setActiveSection("profile")}
@@ -114,23 +125,20 @@ const RestaurantHomePage = () => {
               activeSection === "profile" ? "active" : ""
             }`}
           >
-            <User size={24} />
+            <User size={50} />
           </button>
         </div>
 
         <div className="sidebar-bottom">
           <button className="sidebar-btn" aria-label="Settings">
-            <Settings size={24} />
+            <Settings size={50} />
           </button>
           <button
-            onClick={() => {
-              localStorage.clear();
-              window.location.reload();
-            }}
+            onClick={onLogout}
             className="sidebar-btn logout-btn"
             aria-label="LogOut"
           >
-            <LogOut size={24} />
+            <LogOut size={50} />
           </button>
         </div>
       </div>
@@ -155,8 +163,15 @@ const RestaurantHomePage = () => {
           </div>
 
           <div className="navbar-actions">
-            <div className="cart-icon-btn">
+            <div
+              className="cart-icon-btn"
+              onClick={onNavigateToOrder}
+              style={{ cursor: "pointer" }}
+            >
               <ShoppingCart size={20} />
+              {cart.length > 0 && (
+                <span className="cart-badge">{cart.length}</span>
+              )}
             </div>
           </div>
         </div>
@@ -300,7 +315,9 @@ const RestaurantHomePage = () => {
             </div>
           </div>
 
-          <button className="place-order-btn">Place Order</button>
+          <button className="place-order-btn" onClick={handlePlaceOrder}>
+            Place Order
+          </button>
         </div>
       </div>
     </div>

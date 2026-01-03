@@ -1,23 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./App.css";
 import LoginPage from "./pages/auth/LoginPage";
 import HomePage from "./pages/home/HomePage";
+import OrderPage from "./pages/order/OrderPage";
+
+type PageType = "login" | "home" | "order";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<"login" | "home">("login");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // ✅ Lazy initialization from localStorage
+  const [, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem("isLoggedIn") === "true";
+  });
 
-  // Check if user is already logged in
-  useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn");
-    if (loggedIn === "true") {
-      setIsLoggedIn(true);
-      setCurrentPage("home");
-    }
-  }, []);
+  const [currentPage, setCurrentPage] = useState<PageType>(() => {
+    return localStorage.getItem("isLoggedIn") === "true" ? "home" : "login";
+  });
 
   // Handle navigation
-  const navigateTo = (page: "login" | "home") => {
+  const navigateTo = (page: PageType) => {
     setCurrentPage(page);
   };
 
@@ -28,15 +28,41 @@ function App() {
     setCurrentPage("login");
   };
 
-  // Render current page based on route
+  // Render current page
   const renderPage = () => {
     switch (currentPage) {
       case "login":
-        return <LoginPage onLoginSuccess={() => navigateTo("home")} />;
+        return (
+          <LoginPage
+            onLoginSuccess={() => {
+              localStorage.setItem("isLoggedIn", "true");
+              setIsLoggedIn(true);
+              navigateTo("home");
+            }}
+          />
+        );
+
       case "home":
-        return <HomePage onLogout={handleLogout} />;
+        return (
+          <HomePage
+            onLogout={handleLogout}
+            onNavigateToOrder={() => navigateTo("order")}
+          />
+        );
+
+      case "order":
+        return <OrderPage onNavigateToHome={() => navigateTo("home")} />;
+
       default:
-        return <LoginPage onLoginSuccess={() => navigateTo("home")} />;
+        return (
+          <LoginPage
+            onLoginSuccess={() => {
+              localStorage.setItem("isLoggedIn", "true");
+              setIsLoggedIn(true);
+              navigateTo("home");
+            }}
+          />
+        );
     }
   };
 
