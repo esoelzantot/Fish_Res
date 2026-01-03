@@ -66,8 +66,8 @@ const RestaurantHomePage = ({ onLogout, onNavigateToOrder }: HomePageProps) => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
-  const handlePlaceOrder = (): void => {
-    // Save cart to localStorage before navigating
+  // ✅ دالة موحدة لحفظ الـ cart والانتقال
+  const handleNavigateToOrder = (): void => {
     localStorage.setItem("cart", JSON.stringify(cart));
     onNavigateToOrder();
   };
@@ -163,9 +163,10 @@ const RestaurantHomePage = ({ onLogout, onNavigateToOrder }: HomePageProps) => {
           </div>
 
           <div className="navbar-actions">
+            {/* ✅ استخدام الدالة الجديدة */}
             <div
               className="cart-icon-btn"
-              onClick={onNavigateToOrder}
+              onClick={handleNavigateToOrder}
               style={{ cursor: "pointer" }}
             >
               <ShoppingCart size={20} />
@@ -315,7 +316,8 @@ const RestaurantHomePage = ({ onLogout, onNavigateToOrder }: HomePageProps) => {
             </div>
           </div>
 
-          <button className="place-order-btn" onClick={handlePlaceOrder}>
+          {/* ✅ استخدام نفس الدالة */}
+          <button className="place-order-btn" onClick={handleNavigateToOrder}>
             Place Order
           </button>
         </div>
